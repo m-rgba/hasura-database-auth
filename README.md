@@ -8,7 +8,7 @@
 - JWT-based login method with support for access and refresh tokens.
 - Forgot / reset password facility to help with resetting passwords (w/ time-based expiry).
 - Update email and password facility for logged in users (with email verification for email updates).
-- Emails sent using an email service provider (ESP) which provides an API, Events, and request transformers in Hasura.
+- Emails sent using an email service provider (ESP) [in this example SendGrid] which provides an API, Events, and request transformers in Hasura.
 
 ## Credit
 - Thanks to:
