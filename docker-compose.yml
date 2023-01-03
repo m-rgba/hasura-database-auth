@@ -1,0 +1,43 @@
+version: '2.4'
+services:
+
+  postgres:
+    image: postgres:14
+    container_name: hjdb-postgres
+    restart: always
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ./postgres/:/docker-entrypoint-initdb.d/
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_DB: 'postgres'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_JWT_SECRET: 'mysupersupersecretjwtkeyitshouldbeatleast32characters'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 25
+
+  hasura:
+    image: hasura/graphql-engine:v2.16.1.cli-migrations-v3
+    container_name: hjdb-hasura
+    restart: always
+    ports:
+      - "127.0.0.1:8080:8080"
+    # volumes:
+      # - ./hasura/migrations:/hasura-migrations
+      # - ./hasura/metadata:/hasura-metadata
+    environment:
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
+      HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: 'public'
+      HASURA_GRAPHQL_DATABASE_URL: 'postgres://postgres:password@postgres:5432/postgres'
+      HASURA_GRAPHQL_ADMIN_SECRET: 'password'
+      # -- UPDATE SECRET
+      # Any $ in your secret key needs another $ for interpolation. > ex. `...4v$0n^c...` becomes `...4v$$0n^c...` (read readme.md)
+      HASURA_GRAPHQL_JWT_SECRET: '{ "type": "HS256", "key": "mysupersupersecretjwtkeyitshouldbeatleast32characters" }'
+    depends_on:
+      postgres:
+        condition: service_healthy
